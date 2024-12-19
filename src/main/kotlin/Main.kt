@@ -1,6 +1,8 @@
 fun main() {
     // Uncomment this block to pass the first stage
-     print("$ ")
+    print("$ ")
 
-    readln() // Wait for user input
+    val command: String = readln() // Wait for user input
+
+    print("$command: command not found\n")
 }
