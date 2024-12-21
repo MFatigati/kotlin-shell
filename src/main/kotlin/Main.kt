@@ -23,8 +23,10 @@ fun main() {
         val command = input.split(" ")[0]
         val path = System.getenv("PATH")
         val commandFullLocations = path.split(":")
+        var found = false
+        val isBuiltIn = command in shellBuiltIns
 
-        if (command in shellBuiltIns) {
+        if (isBuiltIn) {
             when (command) {
                 "exit" -> exitProcess(0)
                 "echo" -> {
@@ -34,7 +36,6 @@ fun main() {
                 "type" -> {
                     val secondArg = getSecondArgument(input)
                     var isBuiltIn = secondArg in shellBuiltIns
-                    var found = false
                     if (isBuiltIn) {
                         print("$secondArg is a shell builtin\n")
                     }
@@ -53,7 +54,21 @@ fun main() {
                     }
                 }
             }
-        } else {
+        } else if (!isBuiltIn) {
+            for (dir in commandFullLocations) {
+                if (fileExistsInDir(dir, command)) {
+                    val secondArg = getSecondArgument(input)
+                    ProcessBuilder(command, secondArg)
+                            .redirectOutput(ProcessBuilder.Redirect.INHERIT)
+                            .redirectError(ProcessBuilder.Redirect.INHERIT)
+                            .start()
+                            .waitFor()
+                    found = true
+                    break
+                }
+            }
+        }
+        if (!found && !isBuiltIn) {
             print("$command: command not found\n")
         }
     }
