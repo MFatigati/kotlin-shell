@@ -1,7 +1,7 @@
 import java.io.File
 import kotlin.system.exitProcess
 
-val shellBuiltIns = arrayOf("exit", "echo", "type")
+val shellBuiltIns = arrayOf("exit", "echo", "type", "pwd")
 
 fun getSecondArgument(input: String): String {
     return input.split(" ").drop(1)[0]
@@ -52,6 +52,10 @@ fun main() {
                     if (!isBuiltIn && !found) {
                         print("$secondArg: not found\n")
                     }
+                }
+                "pwd" -> {
+                    val currentWorkingDirectory = System.getProperty("user.dir")
+                    println(currentWorkingDirectory)
                 }
             }
         } else if (!isBuiltIn) {
