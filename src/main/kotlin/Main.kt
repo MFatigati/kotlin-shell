@@ -1,7 +1,9 @@
 import java.io.File
 import kotlin.system.exitProcess
+import java.nio.file.Files
+import java.nio.file.Path
 
-val shellBuiltIns = arrayOf("exit", "echo", "type", "pwd")
+val shellBuiltIns = arrayOf("exit", "echo", "type", "pwd", "cd")
 
 fun getSecondArgument(input: String): String {
     return input.split(" ").drop(1)[0]
@@ -15,6 +17,10 @@ fun fileExistsInDir(filesDir: String, fileName: String): Boolean {
     var file = File(filesDir, fileName)
     return file.exists()
 }
+
+val startingDir: String = System.getProperty("user.dir")
+
+var currentDir = startingDir
 
 fun main() {
     while (true) {
@@ -54,8 +60,16 @@ fun main() {
                     }
                 }
                 "pwd" -> {
-                    val currentWorkingDirectory = System.getProperty("user.dir")
-                    println(currentWorkingDirectory)
+                    println(currentDir)
+                }
+                "cd" -> {
+                    val newDir = getSecondArgument(input)
+                    val directory = File(newDir)
+                    if (directory.exists() && directory.isDirectory) {
+                        currentDir = newDir
+                    } else {
+                        println("cd: $newDir: No such file or directory")
+                    }
                 }
             }
         } else if (!isBuiltIn) {
@@ -63,6 +77,7 @@ fun main() {
                 if (fileExistsInDir(dir, command)) {
                     val secondArg = getSecondArgument(input)
                     ProcessBuilder(command, secondArg)
+                            .directory(File(currentDir))
                             .redirectOutput(ProcessBuilder.Redirect.INHERIT)
                             .redirectError(ProcessBuilder.Redirect.INHERIT)
                             .start()
