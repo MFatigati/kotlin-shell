@@ -63,7 +63,22 @@ fun main() {
                     println(currentDir)
                 }
                 "cd" -> {
-                    val newDir = getSecondArgument(input)
+                    var newDir = getSecondArgument(input)
+                    val relativePathRegex = Regex("^\\./")
+                    val backupPathRegex = Regex("^\\.\\./")
+                    if (newDir.contains(relativePathRegex)) {
+                        // add new directory to current directory
+                       newDir = currentDir + "/" + newDir.replace("./", "")
+                    }
+                    if (newDir.contains(backupPathRegex)) {
+                        while (newDir.contains(backupPathRegex)) {
+                            // remove one backup step from the command
+                            newDir = newDir.replace(backupPathRegex, "")
+                            // back up current directory by one
+                            currentDir = currentDir.split("/").dropLast(1).joinToString("/")
+                        }
+                        newDir = currentDir
+                    }
                     val directory = File(newDir)
                     if (directory.exists() && directory.isDirectory) {
                         currentDir = newDir
