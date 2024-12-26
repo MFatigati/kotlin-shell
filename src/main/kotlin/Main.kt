@@ -79,6 +79,9 @@ fun main() {
                         }
                         newDir = currentDir
                     }
+                    if (newDir == "~") {
+                        newDir = System.getenv("HOME")
+                    }
                     val directory = File(newDir)
                     if (directory.exists() && directory.isDirectory) {
                         currentDir = newDir
